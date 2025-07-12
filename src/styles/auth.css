@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border font-['Poppins'] no-underline list-none;
+  }
+
+  html, body {
+    @apply overflow-x-hidden min-h-screen bg-[#f0f2f5];
+  }
+}
+
+@layer components {
+  .auth-container {
+    @apply relative w-full h-screen flex justify-center items-center;
+  }
+
+  .auth-image-panel {
+    @apply relative hidden lg:flex w-1/2 h-full bg-cover bg-center items-center justify-center text-center text-white;
+    background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop');
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4);
+  }
+
+  .auth-image-content {
+    @apply p-8;
+  }
+
+  .image-title {
+    @apply text-5xl font-bold mb-4;
+  }
+
+  .image-description {
+    @apply text-xl font-light leading-relaxed max-w-sm;
+  }
+
+  .auth-form-panel {
+    @apply relative w-full lg:w-1/2 h-full flex items-center justify-center bg-white p-6;
+  }
+
+  .form-wrapper {
+    @apply w-full max-w-md;
+  }
+
+  .logo-header {
+    @apply flex flex-col items-center mb-10;
+  }
+
+  .website-name {
+    @apply text-2xl font-semibold mt-2 text-[#2e3a47];
+  }
+
+  .form-title {
+    @apply text-3xl font-bold text-center mb-8 text-[#2e3a47];
+  }
+
+  .input-group {
+    @apply relative mb-6;
+  }
+
+  .input-group input {
+    @apply w-full p-4 rounded-lg bg-[#f9f9f9] border border-[#e0e0e0] outline-none text-base transition-colors duration-200 ease-in-out focus:bg-white focus:border-[#6fcfcc];
+  }
+
+  .input-group input::placeholder {
+    @apply text-[#999];
+  }
+
+  .input-group i {
+    @apply absolute right-4 top-1/2 -translate-y-1/2 text-xl text-[#999];
+  }
+
+  .password-group i {
+    @apply cursor-pointer;
+  }
+
+  .forgot-password {
+    @apply text-right mb-6 text-sm;
+  }
+
+  .forgot-password a {
+    @apply text-[#6fcfcc] font-medium transition-all hover:underline hover:text-[#58b9b6];
+  }
+
+  .submit-btn {
+    @apply w-full p-4 rounded-lg bg-[#6fcfcc] text-white font-semibold text-lg transition-transform duration-300 ease-in-out hover:scale-[1.01] hover:brightness-110;
+  }
+
+  .submit-btn:disabled {
+    @apply bg-[#b3e0df] cursor-not-allowed;
+  }
+
+  .social-text {
+    @apply text-center text-[#999] my-6 text-sm;
+  }
+
+  .social-icons {
+    @apply flex justify-center space-x-4;
+  }
+
+  .social-btn {
+    @apply flex items-center justify-center w-12 h-12 rounded-full border border-[#e0e0e0] text-xl text-[#2e3a47] transition-all duration-300 hover:bg-[#6fcfcc] hover:text-white hover:border-[#6fcfcc];
+  }
+
+  .toggle-form-text {
+    @apply text-center mt-8 text-[#666] text-sm;
+  }
+
+  .toggle-form-text button {
+    @apply text-[#6fcfcc] font-medium transition-all hover:underline;
+  }
+}
+
+/* Custom Loader */
+.loader-overlay {
+  @apply fixed top-0 left-0 w-full h-full bg-[rgba(255,255,255,0.75)] flex items-center justify-center z-[9999];
+}
+
+.loader {
+  @apply w-12 h-12 border-4 border-white border-b-transparent rounded-full animate-spin;
+  border-color: #6fcfcc;
+  border-bottom-color: transparent;
+}
+
+
+/* Media Queries */
+@layer utilities {
+  @media (max-width: 1024px) {
+    .auth-container {
+      @apply flex-col h-auto min-h-screen;
+    }
+
+    .auth-image-panel {
+      @apply w-full h-[30vh] flex-row;
+    }
+
+    .auth-image-content {
+      @apply p-4;
+    }
+
+    .auth-form-panel {
+      @apply w-full h-full p-8;
+    }
+
+    .image-title {
+      @apply text-3xl;
+    }
+
+    .image-description {
+      @apply text-base;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .auth-image-panel {
+      @apply h-[25vh];
+    }
+    .image-title {
+      @apply text-2xl;
+    }
+    .image-description {
+      @apply hidden;
+    }
+    .form-title {
+      @apply text-2xl;
+    }
+    .form-wrapper {
+      @apply w-full max-w-sm;
+    }
+  }
+}
+
