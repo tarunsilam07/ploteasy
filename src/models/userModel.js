@@ -24,13 +24,17 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  isAdmin: {
-    type: Boolean,
-    default: false
+  role: {
+    type: String,
+    default: "User"
   },
   profileImageURL: {
     type: String,
-    default: "/profile.webp"
+    default: "/profile.png"
+  },
+  phoneVerified: {
+    type: Boolean,
+    default: false
   },
   forgotPasswordToken: String,
   forgotPasswordTokenExpiry: Date,
