@@ -234,7 +234,7 @@ const LoginRegister: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoginLoading || isRegisterLoading}
-                className="w-full bg-[#6fcfcc] text-white font-semibold p-3 rounded-lg hover:scale-[1.01] transition-transform cursor-pointer hover:bg-[#20b4b1]"
+                className="w-full bg-[#20b4b1] text-white font-semibold p-3 rounded-lg hover:scale-[1.01] transition-transform cursor-pointer hover:bg-[#1a9a97]"
               >
                 {isRegistering ? "Register" : "Login"}
               </button>
