@@ -1,8 +1,7 @@
-// app/page.tsx
-'use client'; // This is needed because HomePage and its children use client-side hooks
+'use client';
 
 import { Inter } from 'next/font/google';
-import { HomePage } from '../components/home/home-page'; // Adjust the path if needed
+import { HomePage } from '../components/home/home-page';
 
 const inter = Inter({ subsets: ['latin'] });
 

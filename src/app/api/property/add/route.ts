@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDb } from "@/dbConfig/dbConfig";
-import Property from "@/models/propertyModel";
+import Property from "@/models/propertyModel"; // Ensure this path is correct
 import { getDataFromToken } from "@/helpers/getDataFromToken";
+import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
   await connectDb();
@@ -12,46 +13,53 @@ export async function POST(req: NextRequest) {
     const userId = await getDataFromToken(req);
     console.log("User ID from token:", userId);
 
+    // Destructure all expected fields from the frontend form
     const {
       username,
       contact,
       address,
       title,
       type, // 'land' or 'building'
-      saleType,
-      landCategory,
-      floors, // New field
-      bedrooms,
-      bathrooms,
-      propertyAge,
-      furnishing,
+      saleType, // Frontend uses 'saleType', backend maps to 'transactionType'
+      landCategory, // Will be undefined if type is 'building' from frontend
+      floors,       // Will be undefined if type is 'land'
+      bedrooms,     // Will be undefined if type is 'land'
+      bathrooms,    // Will be undefined if type is 'land'
+      propertyAge,  // Will be undefined if type is 'land'
+      furnishing,   // Will be undefined if type is 'land'
       facing,
       otherDetails,
       description,
       area,
+      areaUnit,
       price,
-      discount, // New field
-      parking, // New field
-      location,
+      discount,
+      parking,      // Will be undefined if type is 'land'
+      state,
+      city,
       images,
       isPremium,
     } = data;
-    
-    // Perform server-side validation
+
+    // --- Server-Side Initial Validation (before Mongoose full validation) ---
+    // These are checks for fundamental missing data that would prevent Mongoose from even running
     if (
       !title ||
       !username ||
       !contact ||
       !address ||
       !type ||
-      !saleType || // saleType is now always required
-      !area ||
-      !price ||
-      !location ||
-      isPremium === undefined
+      !saleType ||
+      area === undefined || // Check for undefined/null, as 0 could be valid for area
+      !areaUnit ||
+      price === undefined || // Check for undefined/null
+      !state ||
+      !city ||
+      isPremium === undefined || // Boolean value, so check for undefined explicitly
+      !userId // Ensure userId is successfully retrieved
     ) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields." },
+        { success: false, message: "Missing one or more primary required fields. Please check all mandatory fields (title, username, contact, address, type, saleType, area, areaUnit, price, state, city, premium status)." },
         { status: 400 }
       );
     }
@@ -63,10 +71,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Conditional validation for property-specific fields
-    if (type === 'land' && !landCategory) {
-      return NextResponse.json({ success: false, message: "Missing land category." }, { status: 400 });
-    }
+    // Mongoose schema's conditional 'required' will handle `landCategory`, `floors`, etc.
+
+    const propertyLocation = {
+      state,
+      city,
+      // Include lat/lng only if they are provided, otherwise Mongoose defaults will apply
+      lat: data.location?.lat,
+      lng: data.location?.lng,
+    };
 
     const newProperty = new Property({
       username,
@@ -74,32 +87,35 @@ export async function POST(req: NextRequest) {
       address,
       title,
       type,
-      transactionType: saleType, // Now included for all property types
+      transactionType: saleType, // Map frontend 'saleType' to backend 'transactionType'
       area,
+      areaUnit,
       price,
-      location,
+      location: propertyLocation,
       images,
       isPremium,
-      description,
       createdBy: userId,
+
+      // Assign optional/conditional fields directly.
+      // Mongoose's schema will handle the 'required' checks
+      // and cast types based on the 'type' of the property.
+      description: description || undefined,
+      discount: discount || undefined, // Discount applies to both
+      facing: facing === 'Not Specified' ? undefined : facing, // Don't save "Not Specified"
       
-      // Conditionally add other fields
-      ...(type === 'building' && {
-        floors: floors || undefined, // New field
-        parking: parking || undefined, // New field
-        discount: discount || undefined, // New field
-        bedrooms: bedrooms || undefined,
-        bathrooms: bathrooms || undefined,
-        propertyAge: propertyAge || undefined,
-        furnishing: furnishing || undefined,
-        otherDetails: otherDetails || undefined,
-      }),
-      ...(type === 'land' && {
-        landCategory,
-      }),
-      
-      // Add facing if provided
-      ...(facing && facing !== 'Not Specified' && { facing }),
+      // Building specific fields - pass them directly.
+      // If `type` is 'land', these will be undefined and Mongoose won't require them.
+      floors: floors || undefined,
+      parking: parking || undefined,
+      bedrooms: bedrooms || undefined,
+      bathrooms: bathrooms || undefined,
+      propertyAge: propertyAge || undefined,
+      furnishing: furnishing || undefined,
+      otherDetails: otherDetails || undefined,
+
+      // Land specific fields - pass directly.
+      // If `type` is 'building', this will be undefined and Mongoose won't require it.
+      landCategory: landCategory || undefined,
     });
 
     await newProperty.save();
@@ -117,14 +133,21 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Error saving property:", error);
 
-    if (error instanceof Error && (error as any).name === "ValidationError") {
-      const messages = Object.values((error as any).errors).map(
+    if (error instanceof mongoose.Error.ValidationError) {
+      const messages = Object.values(error.errors).map(
         (err: any) => err.message
       );
       return NextResponse.json(
         { success: false, message: messages.join(", ") },
         { status: 400 }
       );
+    }
+    
+    if (error instanceof Error) {
+        return NextResponse.json(
+            { success: false, message: error.message || "An unexpected error occurred." },
+            { status: 400 }
+        );
     }
 
     return NextResponse.json(
