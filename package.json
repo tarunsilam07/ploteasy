@@ -9,14 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@radix-ui/react-dialog": "^1.1.14",
     "@react-google-maps/api": "^2.20.7",
     "bcryptjs": "^3.0.2",
     "boxicons": "^2.1.4",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "firebase": "^11.10.0",
     "framer-motion": "^12.23.3",
+    "html2pdf.js": "^0.10.3",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "lottie-react": "^2.4.1",

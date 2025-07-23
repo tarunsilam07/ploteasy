@@ -1,7 +1,16 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/dkm46q09h/image/upload/**', // Adjust this if your Cloudinary path changes significantly
+      },
+    ],
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

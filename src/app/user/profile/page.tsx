@@ -23,10 +23,22 @@ interface UserProfile {
   createdAt?: string;
 }
 
+interface Property {
+  _id: string;
+  title: string;
+  address: string;
+  price: number;
+  area: number;
+  areaUnit: string;
+  images: string[];
+  // Add other property fields you want to display
+}
+
 export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [phoneInput, setPhoneInput] = useState("");
   const [editPhone, setEditPhone] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
   const router = useRouter();
 
   const [uploading, setUploading] = useState(false);
@@ -59,6 +71,7 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
+    // Fetch user profile
     axios
       .get("/api/auth/me")
       .then((res) => {
@@ -67,14 +80,25 @@ export default function ProfilePage() {
       })
       .catch((err) => {
         console.error("Profile fetch error:", err);
-        router.push("/login");
+        router.push("/auth");
+      });
+
+    // Fetch user properties
+    axios
+      .get("/api/user/properties")
+      .then((res) => {
+        setProperties(res.data.properties);
+      })
+      .catch((err) => {
+        console.error("Properties fetch error:", err);
+        // Handle error, e.g., show a message to the user
       });
   }, [router]);
 
   const handleLogout = async () => {
     try {
       await axios.post("/api/logout");
-      router.push("/login");
+      router.push("/auth");
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -123,14 +147,17 @@ export default function ProfilePage() {
           <div className="relative w-28 h-28 mx-auto mb-4">
             <img
               src={
-                typeof imagePreview === 'string'
+                typeof imagePreview === "string"
                   ? imagePreview
-                  : user.profileImageURL || '/profile.webp'
+                  : user.profileImageURL || "/profile.webp"
               }
               alt="Profile"
               className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-md"
             />
-            <label htmlFor="imageUpload" className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow cursor-pointer">
+            <label
+              htmlFor="imageUpload"
+              className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow cursor-pointer"
+            >
               <input
                 type="file"
                 id="imageUpload"
@@ -256,17 +283,52 @@ export default function ProfilePage() {
             can manage them from this section.
           </p>
 
-          <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 text-center">
-            <div className="flex flex-col items-center">
-              <BiBuilding className="text-4xl mb-2 text-[#6fcfcc]" />
-              <p className="italic text-sm">
-                You haven't listed any properties yet.
-              </p>
-              <button className="mt-4 px-6 py-2 rounded-lg bg-[#6fcfcc] text-white font-semibold hover:bg-teal-500 transition shadow">
-                List a New Property
-              </button>
+          {properties.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <div
+                  key={property._id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden"
+                >
+                  <img
+                    src={property.images[0] || "/placeholder.jpg"} // Use a placeholder if no image
+                    alt={property.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <h4 className="text-lg font-semibold text-gray-900 truncate">
+                      {property.title}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {property.address}
+                    </p>
+                    <p className="text-md font-bold text-[#6fcfcc] mt-2">
+                      ${property.price.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {property.area} {property.areaUnit}
+                    </p>
+                    {/* Add more property details here as needed */}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 text-center">
+              <div className="flex flex-col items-center">
+                <BiBuilding className="text-4xl mb-2 text-[#6fcfcc]" />
+                <p className="italic text-sm">
+                  You haven't listed any properties yet.
+                </p>
+                <button
+                  onClick={() => router.push("/list-property")} // Assuming you have a route to list a new property
+                  className="mt-4 px-6 py-2 rounded-lg bg-[#6fcfcc] text-white font-semibold hover:bg-teal-500 transition shadow"
+                >
+                  List a New Property
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

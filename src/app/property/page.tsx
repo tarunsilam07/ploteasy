@@ -1,13 +1,14 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { HeroSection } from '@/components/home/hero-section'; // ✅ Adjust the path as needed
+import { HeroSection } from '@/components/home/hero-section';
 
 export default function PropertyResultsPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const searchParams = useSearchParams();
+  const router = useRouter(); 
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -26,7 +27,7 @@ export default function PropertyResultsPage() {
 
   return (
     <>
-      <HeroSection /> {/* ✅ Hero added */}
+      <HeroSection />
 
       <div className="min-h-screen bg-[#f9fafb] py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,7 +78,10 @@ export default function PropertyResultsPage() {
                       <p className="text-lg font-bold text-[#20b4b1]">
                         ₹{p.price.toLocaleString()}
                       </p>
-                      <button className="bg-[#20b4b1] text-white text-xs font-medium px-3 py-1.5 rounded-md hover:bg-[#1a9a97] shadow-sm transition duration-200">
+                      <button
+                        onClick={() => router.push(`/property/${p._id}`)} // ✅ Navigation
+                        className="bg-[#20b4b1] text-white text-xs font-medium px-3 py-1.5 rounded-md hover:bg-[#1a9a97] cursor-pointer shadow-sm transition duration-200"
+                      >
                         View Details
                       </button>
                     </div>
